@@ -56,6 +56,23 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				} else {
 					log.Printf("Sent ANO: %s => %d", t.Sender, amount)
 				}
+
+				user := &User{Address: t.Sender}
+				db.First(user, user)
+				if len(user.Referral) > 0 {
+					referral := &User{Address: user.Referral}
+					db.First(referral, referral)
+					splitToHolders := t.Amount / 2
+					splitToHolders -= (t.Amount / 5)
+					if referral.ID != 0 {
+						newProfit := uint64(t.Amount / 5)
+						referral.ReferralProfitWav += newProfit
+						referral.ReferralProfitWavTotal += newProfit
+						db.Save(referral)
+						splitToHolders -= (t.Amount / 5)
+					}
+					log.Println(splitToHolders)
+				}
 			}
 		}
 	}
