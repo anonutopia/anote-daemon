@@ -71,7 +71,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 						db.Save(referral)
 						splitToHolders -= (t.Amount / 5)
 					}
-					log.Println(splitToHolders)
+					wm.splitToHolders(splitToHolders)
 				}
 			}
 		}
@@ -85,6 +85,79 @@ func (wm *WavesMonitor) calculateAmount(trType int64, amount int64) int64 {
 	var amountSending int64
 	amountSending = 0
 	return amountSending
+}
+
+func (wm *WavesMonitor) splitToHolders(amount int) {
+	// log.Println(amount)
+	// ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
+	// log.Println(err)
+	// log.Println(ad)
+	// ts, err := wm.totalSupply()
+	// if err == nil {
+	// 	log.Println(ts)
+	// }
+	ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
+	if err != nil {
+		log.Println(err)
+	} else {
+		itemsMap := ad.(map[string]interface{})
+		for k, _ := range itemsMap {
+			stake, err := wm.calculateStake(k)
+			if err == nil {
+				user := &User{Address: k}
+				db.First(user, user)
+				if user.ID != 0 {
+					amountUser := uint64(float64(amount) * stake)
+					user.ProfitWav += amountUser
+					db.Save(user)
+				}
+			}
+		}
+	}
+}
+
+func (wm *WavesMonitor) totalSupply() (uint64, error) {
+	supply := uint64(0)
+	ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
+	if err != nil {
+		return 0, err
+	}
+	itemsMap := ad.(map[string]interface{})
+	for k, a := range itemsMap {
+		if k != "3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2" {
+			supply += uint64(a.(float64))
+		}
+	}
+	return supply, err
+}
+
+func (wm *WavesMonitor) getBalance(address string) (uint64, error) {
+	ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
+	if err != nil {
+		return 0, err
+	}
+	itemsMap := ad.(map[string]interface{})
+	for k, a := range itemsMap {
+		if k != address {
+			return uint64(a.(float64)), nil
+		}
+	}
+	return uint64(0), err
+}
+
+func (wm *WavesMonitor) calculateStake(address string) (float64, error) {
+	if address == "3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2" {
+		return 0, nil
+	}
+	b, err := wm.getBalance(address)
+	if err != nil {
+		return 0, err
+	}
+	ts, err := wm.totalSupply()
+	if err != nil {
+		return 0, err
+	}
+	return float64(b) / float64(ts), nil
 }
 
 func initMonitor() {
