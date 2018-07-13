@@ -8,16 +8,21 @@ import (
 )
 
 type WavesMonitor struct {
+	StartedTime int64
 }
 
 func (wm *WavesMonitor) start() {
+	wm.StartedTime = time.Now().Unix() * 1000
 	for {
-		pages, err := wnc.TransactionsAddressLimit("3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2", 10)
+		// todo - make sure that everything is ok with 10 here
+		pages, err := wnc.TransactionsAddressLimit("3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2", 100)
 		if err != nil {
 			log.Println(err)
 		}
-		for _, t := range pages[0] {
-			wm.checkTransaction(&t)
+		if len(pages) > 0 {
+			for _, t := range pages[0] {
+				wm.checkTransaction(&t)
+			}
 		}
 		time.Sleep(time.Second)
 	}
@@ -32,7 +37,7 @@ func (wm *WavesMonitor) checkTransaction(t *gowaves.TransactionsAddressLimitResp
 }
 
 func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.TransactionsAddressLimitResponse) {
-	if t.Type == 4 {
+	if t.Type == 4 && t.Timestamp >= wm.StartedTime {
 		if len(t.AssetID) == 0 {
 			p, err := pc.DoRequest()
 			if err == nil {
@@ -49,7 +54,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				if err != nil {
 					log.Printf("[WavesMonitor.processTransation] error assets transfer: %s", err)
 				} else {
-					log.Printf("Sent ANO: %s:%d", t.Sender, amount)
+					log.Printf("Sent ANO: %s => %d", t.Sender, amount)
 				}
 			}
 		}
