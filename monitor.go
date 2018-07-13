@@ -88,14 +88,6 @@ func (wm *WavesMonitor) calculateAmount(trType int64, amount int64) int64 {
 }
 
 func (wm *WavesMonitor) splitToHolders(amount int) {
-	// log.Println(amount)
-	// ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
-	// log.Println(err)
-	// log.Println(ad)
-	// ts, err := wm.totalSupply()
-	// if err == nil {
-	// 	log.Println(ts)
-	// }
 	ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
 	if err != nil {
 		log.Println(err)
