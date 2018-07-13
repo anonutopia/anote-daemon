@@ -109,6 +109,7 @@ func (wm *WavesMonitor) splitToHolders(amount int) {
 				if user.ID != 0 {
 					amountUser := uint64(float64(amount) * stake)
 					user.ProfitWav += amountUser
+					user.ProfitWavTotal += amountUser
 					db.Save(user)
 				}
 			}
