@@ -13,6 +13,8 @@ var db *gorm.DB
 
 var pc *PriceClient
 
+var bm *BitcoinMonitor
+
 func main() {
 	conf = initConfig()
 
@@ -21,6 +23,8 @@ func main() {
 	db = initDb()
 
 	pc = initPriceClient()
+
+	bm = initBtcMonitor()
 
 	initMonitor()
 }
