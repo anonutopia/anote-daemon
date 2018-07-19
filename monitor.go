@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/anonutopia/gowaves"
+	"github.com/mr-tron/base58/base58"
 )
 
 type WavesMonitor struct {
@@ -37,11 +38,21 @@ func (wm *WavesMonitor) checkTransaction(t *gowaves.TransactionsAddressLimitResp
 }
 
 func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.TransactionsAddressLimitResponse) {
-	if t.Type == 4 && t.Timestamp >= wm.StartedTime {
-		if len(t.AssetID) == 0 {
+	if t.Type == 4 && t.Timestamp >= wm.StartedTime && len(t.Attachment) == 0 && t.Sender != "3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2" {
+		if len(t.AssetID) == 0 || t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" || t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
 			p, err := pc.DoRequest()
 			if err == nil {
-				amount := int(float64(t.Amount) * p.WAVES / 0.01)
+				var cryptoPrice float64
+				if len(t.AssetID) == 0 {
+					cryptoPrice = p.WAVES
+				} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
+					cryptoPrice = p.BTC
+				} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
+					cryptoPrice = p.ETH
+				}
+
+				amount := int(float64(t.Amount) / cryptoPrice / 0.01)
+
 				atr := &gowaves.AssetsTransferRequest{
 					Amount:    amount,
 					AssetID:   "4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf",
@@ -73,8 +84,17 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					}
 					wm.splitToHolders(splitToHolders)
 				}
+			} else {
+				log.Printf("[WavesMonitor.processTransaction] error pc.DoRequest: %s", err)
 			}
 		}
+	} else if len(t.Attachment) > 0 {
+		dcd, err := base58.Decode(t.Attachment)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		log.Printf("[WavesMonitor.processTransaction] %s", dcd)
 	}
 
 	tr.Processed = 1
