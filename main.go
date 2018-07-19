@@ -15,6 +15,8 @@ var pc *PriceClient
 
 var bm *BitcoinMonitor
 
+var em *EthereumMonitor
+
 func main() {
 	conf = initConfig()
 
@@ -25,6 +27,8 @@ func main() {
 	pc = initPriceClient()
 
 	bm = initBtcMonitor()
+
+	em = initEthMonitor()
 
 	initMonitor()
 }
