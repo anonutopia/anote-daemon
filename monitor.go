@@ -43,12 +43,16 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			p, err := pc.DoRequest()
 			if err == nil {
 				var cryptoPrice float64
+				var invType string
 				if len(t.AssetID) == 0 {
 					cryptoPrice = p.WAVES
+					invType = "WAV"
 				} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
 					cryptoPrice = p.BTC
+					invType = "BTC"
 				} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
 					cryptoPrice = p.ETH
+					invType = "ETH"
 				}
 
 				amount := int(float64(t.Amount) / cryptoPrice / 0.01)
@@ -68,22 +72,29 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					log.Printf("Sent ANO: %s => %d", t.Sender, amount)
 				}
 
+				splitToHolders := t.Amount / 2
 				user := &User{Address: t.Sender}
 				db.First(user, user)
 				if len(user.Referral) > 0 {
 					referral := &User{Address: user.Referral}
 					db.First(referral, referral)
-					splitToHolders := t.Amount / 2
-					splitToHolders -= (t.Amount / 5)
 					if referral.ID != 0 {
 						newProfit := uint64(t.Amount / 5)
-						referral.ReferralProfitWav += newProfit
-						referral.ReferralProfitWavTotal += newProfit
+						if len(t.AssetID) == 0 {
+							referral.ReferralProfitWav += newProfit
+							referral.ReferralProfitWavTotal += newProfit
+						} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
+							referral.ReferralProfitBtc += newProfit
+							referral.ReferralProfitBtcTotal += newProfit
+						} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
+							referral.ReferralProfitEth += newProfit
+							referral.ReferralProfitEthTotal += newProfit
+						}
 						db.Save(referral)
 						splitToHolders -= (t.Amount / 5)
 					}
-					wm.splitToHolders(splitToHolders)
 				}
+				wm.splitToHolders(splitToHolders, invType)
 			} else {
 				log.Printf("[WavesMonitor.processTransaction] error pc.DoRequest: %s", err)
 			}
@@ -107,7 +118,7 @@ func (wm *WavesMonitor) calculateAmount(trType int64, amount int64) int64 {
 	return amountSending
 }
 
-func (wm *WavesMonitor) splitToHolders(amount int) {
+func (wm *WavesMonitor) splitToHolders(amount int, invType string) {
 	ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
 	if err != nil {
 		log.Println(err)
@@ -115,13 +126,22 @@ func (wm *WavesMonitor) splitToHolders(amount int) {
 		itemsMap := ad.(map[string]interface{})
 		for k, _ := range itemsMap {
 			stake, err := wm.calculateStake(k)
+			// log.Printf("Stake for address %s => %2f", k, stake)
 			if err == nil {
 				user := &User{Address: k}
 				db.First(user, user)
 				if user.ID != 0 {
 					amountUser := uint64(float64(amount) * stake)
-					user.ProfitWav += amountUser
-					user.ProfitWavTotal += amountUser
+					if invType == "WAV" {
+						user.ProfitWav += amountUser
+						user.ProfitWavTotal += amountUser
+					} else if invType == "BTC" {
+						user.ProfitBtc += amountUser
+						user.ProfitBtcTotal += amountUser
+					} else if invType == "WAV" {
+						user.ProfitEth += amountUser
+						user.ProfitEthTotal += amountUser
+					}
 					db.Save(user)
 				}
 			}
@@ -145,17 +165,11 @@ func (wm *WavesMonitor) totalSupply() (uint64, error) {
 }
 
 func (wm *WavesMonitor) getBalance(address string) (uint64, error) {
-	ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
+	abr, err := wnc.AssetsBalance(address, "4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
 	if err != nil {
 		return 0, err
 	}
-	itemsMap := ad.(map[string]interface{})
-	for k, a := range itemsMap {
-		if k != address {
-			return uint64(a.(float64)), nil
-		}
-	}
-	return uint64(0), err
+	return uint64(abr.Balance), err
 }
 
 func (wm *WavesMonitor) calculateStake(address string) (float64, error) {
@@ -170,6 +184,7 @@ func (wm *WavesMonitor) calculateStake(address string) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
+	// log.Printf("Total supply: %d", ts)
 	return float64(b) / float64(ts), nil
 }
 
