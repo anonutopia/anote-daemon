@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/anonutopia/gowaves"
 	"github.com/jinzhu/gorm"
+	"gopkg.in/telegram-bot-api.v4"
 )
 
 var conf *Config
@@ -17,6 +18,8 @@ var bm *BitcoinMonitor
 
 var em *EthereumMonitor
 
+var bot *tgbotapi.BotAPI
+
 func main() {
 	conf = initConfig()
 
@@ -29,6 +32,8 @@ func main() {
 	bm = initBtcMonitor()
 
 	em = initEthMonitor()
+
+	bot = initBot()
 
 	initMonitor()
 }

@@ -10,6 +10,7 @@ type Config struct {
 	WavesNodeApiKey string `json:"wavesnode_apikey"`
 	NodeAddress     string `json:"node_address"`
 	Debug           bool   `json:"debug"`
+	Telegram        string `json:"telegram"`
 }
 
 func (sc *Config) Load(configFile string) error {

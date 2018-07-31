@@ -6,6 +6,7 @@ import (
 
 	"github.com/anonutopia/gowaves"
 	"github.com/mr-tron/base58/base58"
+	"gopkg.in/telegram-bot-api.v4"
 )
 
 type WavesMonitor struct {
@@ -106,6 +107,8 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			return
 		}
 		log.Printf("[WavesMonitor.processTransaction] %s", dcd)
+		msg := tgbotapi.NewMessage(-304575934, string(dcd))
+		bot.Send(msg)
 	}
 
 	tr.Processed = 1
