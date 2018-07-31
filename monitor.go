@@ -33,7 +33,7 @@ func (wm *WavesMonitor) start() {
 func (wm *WavesMonitor) checkTransaction(t *gowaves.TransactionsAddressLimitResponse) {
 	tr := Transaction{TxId: t.ID}
 	db.FirstOrCreate(&tr, &tr)
-	if tr.Processed != 1 {
+	if tr.Processed != true {
 		wm.processTransaction(&tr, t)
 	}
 }
@@ -111,7 +111,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 		bot.Send(msg)
 	}
 
-	tr.Processed = 1
+	tr.Processed = true
 	db.Save(tr)
 }
 
