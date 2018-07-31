@@ -107,7 +107,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			return
 		}
 		log.Printf("[WavesMonitor.processTransaction] %s", dcd)
-		msg := tgbotapi.NewMessage(-304575934, string(dcd))
+		msg := tgbotapi.NewMessage(-1001325718529, string(dcd))
 		bot.Send(msg)
 	}
 
