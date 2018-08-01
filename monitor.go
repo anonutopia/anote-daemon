@@ -129,7 +129,7 @@ func (wm *WavesMonitor) splitToHolders(amount int, invType string) {
 		itemsMap := ad.(map[string]interface{})
 		for k, _ := range itemsMap {
 			stake, err := wm.calculateStake(k)
-			// log.Printf("Stake for address %s => %2f", k, stake)
+			log.Printf("Stake for address %s => %2f", k, stake)
 			if err == nil {
 				user := &User{Address: k}
 				db.First(user, user)
@@ -141,7 +141,7 @@ func (wm *WavesMonitor) splitToHolders(amount int, invType string) {
 					} else if invType == "BTC" {
 						user.ProfitBtc += amountUser
 						user.ProfitBtcTotal += amountUser
-					} else if invType == "WAV" {
+					} else if invType == "ETH" {
 						user.ProfitEth += amountUser
 						user.ProfitEthTotal += amountUser
 					}
