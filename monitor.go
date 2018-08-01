@@ -132,7 +132,7 @@ func (wm *WavesMonitor) splitToHolders(amount int, invType string) {
 			log.Printf("Stake for address %s => %2f", k, stake)
 			if err == nil {
 				user := &User{Address: k}
-				db.First(user, user)
+				db.FirstOrCreate(user, user)
 				if user.ID != 0 {
 					amountUser := uint64(float64(amount) * stake)
 					if invType == "WAV" {
