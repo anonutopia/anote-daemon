@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -139,7 +140,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					_, err := wnc.AssetsTransfer(atr)
 					if err != nil {
 						log.Printf("[WavesMonitor.processTransaction] Error: %s", err)
-						msg := tgbotapi.NewMessage(-1001325718529, string(err))
+						msg := tgbotapi.NewMessage(-1001325718529, fmt.Sprintf("%s", err))
 						bot.Send(msg)
 					}
 				}
