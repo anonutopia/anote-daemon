@@ -110,10 +110,13 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 		if string(dcd) == "withdraw" {
 			user := &User{Address: t.Sender}
 			db.First(user, user)
+			var msg tgbotapi.MessageConfig
 			if user.ID != 0 {
-				msg := tgbotapi.NewMessage(-1001325718529, "found user")
-				bot.Send(msg)
+				msg = tgbotapi.NewMessage(-1001325718529, "found user")
+			} else {
+				msg = tgbotapi.NewMessage(-1001325718529, "not found user")
 			}
+			bot.Send(msg)
 		} else {
 			log.Printf("[WavesMonitor.processTransaction] %s", dcd)
 			msg := tgbotapi.NewMessage(-1001325718529, string(dcd))
