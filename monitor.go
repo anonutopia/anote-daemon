@@ -106,9 +106,19 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			log.Println(err)
 			return
 		}
-		log.Printf("[WavesMonitor.processTransaction] %s", dcd)
-		msg := tgbotapi.NewMessage(-1001325718529, string(dcd))
-		bot.Send(msg)
+
+		if string(dcd) == "withdraw" {
+			user := &User{Address: t.Sender}
+			db.First(user, user)
+			if user.ID != 0 {
+				msg := tgbotapi.NewMessage(-1001325718529, "found user")
+				bot.Send(msg)
+			}
+		} else {
+			log.Printf("[WavesMonitor.processTransaction] %s", dcd)
+			msg := tgbotapi.NewMessage(-1001325718529, string(dcd))
+			bot.Send(msg)
+		}
 	}
 
 	tr.Processed = true
