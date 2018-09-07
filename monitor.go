@@ -39,6 +39,7 @@ func (wm *WavesMonitor) checkTransaction(t *gowaves.TransactionsAddressLimitResp
 }
 
 func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.TransactionsAddressLimitResponse) {
+	log.Println(tr)
 	if t.Type == 4 && t.Timestamp >= wm.StartedTime && len(t.Attachment) == 0 && t.Sender != "3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2" && t.Recipient == "3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2" {
 		if len(t.AssetID) == 0 || t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" || t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
 			p, err := pc.DoRequest()
