@@ -20,6 +20,8 @@ func (wm *WavesMonitor) start() {
 		pages, err := wnc.TransactionsAddressLimit("3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2", 100)
 		if err != nil {
 			log.Println(err)
+		} else {
+			log.Println(pages)
 		}
 		if len(pages) > 0 {
 			for _, t := range pages[0] {
