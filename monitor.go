@@ -131,7 +131,6 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				if wavAmount > 0 {
 					atr := &gowaves.AssetsTransferRequest{
 						Amount:    int(wavAmount),
-						AssetID:   "WAVES",
 						Fee:       100000,
 						Recipient: t.Sender,
 						Sender:    conf.NodeAddress,
