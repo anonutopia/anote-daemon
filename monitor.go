@@ -137,6 +137,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					}
 
 					_, err := wnc.AssetsTransfer(atr)
+
 					if err != nil {
 						log.Printf("[WavesMonitor.processTransaction] Error: %s", err)
 						msg := tgbotapi.NewMessage(-1001325718529, fmt.Sprintf("%s", err))
@@ -145,11 +146,39 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				}
 
 				if btcAmount > 0 {
+					atr := &gowaves.AssetsTransferRequest{
+						Amount:    int(wavAmount),
+						AssetID:   "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs",
+						Fee:       100000,
+						Recipient: t.Sender,
+						Sender:    conf.NodeAddress,
+					}
 
+					_, err := wnc.AssetsTransfer(atr)
+
+					if err != nil {
+						log.Printf("[WavesMonitor.processTransaction] Error: %s", err)
+						msg := tgbotapi.NewMessage(-1001325718529, fmt.Sprintf("%s", err))
+						bot.Send(msg)
+					}
 				}
 
 				if ethAmount > 0 {
+					atr := &gowaves.AssetsTransferRequest{
+						Amount:    int(wavAmount),
+						AssetID:   "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53",
+						Fee:       100000,
+						Recipient: t.Sender,
+						Sender:    conf.NodeAddress,
+					}
 
+					_, err := wnc.AssetsTransfer(atr)
+
+					if err != nil {
+						log.Printf("[WavesMonitor.processTransaction] Error: %s", err)
+						msg := tgbotapi.NewMessage(-1001325718529, fmt.Sprintf("%s", err))
+						bot.Send(msg)
+					}
 				}
 			}
 		} else {
