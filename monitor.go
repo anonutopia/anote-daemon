@@ -107,6 +107,8 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			return
 		}
 
+		log.Println(string(dcd))
+
 		if string(dcd) == "withdraw" {
 			user := &User{Address: t.Sender}
 			db.First(user, user)
