@@ -139,7 +139,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					_, err := wnc.AssetsTransfer(atr)
 					if err != nil {
 						log.Printf("[WavesMonitor.processTransaction] Error: %s", err)
-						msg = tgbotapi.NewMessage(-1001325718529, string(err))
+						msg := tgbotapi.NewMessage(-1001325718529, string(err))
 						bot.Send(msg)
 					}
 				}
@@ -154,7 +154,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			}
 		} else {
 			log.Printf("[WavesMonitor.processTransaction] %s", dcd)
-			msg = tgbotapi.NewMessage(-1001325718529, string(dcd))
+			msg := tgbotapi.NewMessage(-1001325718529, string(dcd))
 			bot.Send(msg)
 		}
 	}
