@@ -183,7 +183,10 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				}
 			}
 		} else if strings.HasPrefix(string(dcd), "forwardbtc=") {
-			bg.sendBitcoin(strings.Replace(string(dcd), "forwardbtc=", "", 1), float64(t.Amount)/100000000)
+			err := bg.sendBitcoin(strings.Replace(string(dcd), "forwardbtc=", "", 1), float64(t.Amount)/100000000)
+			if err != nil {
+				log.Printf("Error in bg.sendBitcoin: %s", err)
+			}
 		} else {
 			log.Printf("[WavesMonitor.processTransaction] %s %.8f", dcd, float64(t.Amount)/100000000)
 			msg := tgbotapi.NewMessage(-1001325718529, string(dcd))
