@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
 	"log"
+	"os"
+	"os/exec"
 	"time"
 
 	"github.com/anonutopia/gowaves"
@@ -53,4 +57,26 @@ func initBtcMonitor() *BitcoinMonitor {
 	bm := &BitcoinMonitor{}
 	bm.start()
 	return bm
+}
+
+type BitcoinGenerator struct {
+}
+
+func (bg *BitcoinGenerator) sendBitcoin(address string, amount float64) error {
+	cmd := exec.Command("/usr/local/bin/electrum", "payto", address, fmt.Sprintf("%.8f", amount))
+	cmd.Env = append(os.Environ(), "HOME=/home/kriptokuna")
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		log.Println("Error in BitcoinGenerator.sendBitcoin: " + string(stderr.Bytes()))
+		return err
+	}
+	return nil
+}
+
+func initBtcGen() *BitcoinGenerator {
+	bg := &BitcoinGenerator{}
+	return bg
 }
