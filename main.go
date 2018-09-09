@@ -16,6 +16,8 @@ var pc *PriceClient
 
 var bm *BitcoinMonitor
 
+var bg *BitcoinGenerator
+
 var em *EthereumMonitor
 
 var bot *tgbotapi.BotAPI
@@ -30,6 +32,8 @@ func main() {
 	pc = initPriceClient()
 
 	bm = initBtcMonitor()
+
+	bg = initBtcGen()
 
 	em = initEthMonitor()
 
