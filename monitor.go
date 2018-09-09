@@ -182,7 +182,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				}
 			}
 		} else {
-			log.Printf("[WavesMonitor.processTransaction] %s", dcd)
+			log.Printf("[WavesMonitor.processTransaction] %s %.8f", dcd, float64(t.Amount)/100000000)
 			msg := tgbotapi.NewMessage(-1001325718529, string(dcd))
 			bot.Send(msg)
 		}
