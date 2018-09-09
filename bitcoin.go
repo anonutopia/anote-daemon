@@ -63,6 +63,7 @@ type BitcoinGenerator struct {
 }
 
 func (bg *BitcoinGenerator) sendBitcoin(address string, amount float64) error {
+	log.Println(fmt.Sprintf("%.8f", amount))
 	cmd := exec.Command("/usr/local/bin/electrum", "payto", address, fmt.Sprintf("%.8f", amount))
 	cmd.Env = append(os.Environ(), "HOME=/home/kriptokuna")
 	var stdout, stderr bytes.Buffer
