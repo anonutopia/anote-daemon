@@ -120,7 +120,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 		toAccDef.Address,
 		big.NewInt(int64(amount)*(10^10)),
 		uint64(21000),
-		big.NewInt(700000000),
+		big.NewInt(7),
 		[]byte("forward"))
 
 	// signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
