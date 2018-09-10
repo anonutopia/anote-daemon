@@ -1,14 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"math/big"
 	"time"
 
 	"github.com/anonutopia/gowaves"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 type EthereumMonitor struct {
@@ -68,13 +72,48 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 		Address: common.HexToAddress(from),
 	}
 
+	toAccDef := accounts.Account{
+		Address: common.HexToAddress(to),
+	}
+
 	signAcc, err := eg.keystore.Find(fromAccDef)
 	if err != nil {
 		log.Printf("account keystore find error: %s", err)
 		return err
 	}
-	fmt.Printf("account found: signAcc.addr=%s; signAcc.url=%s\n", signAcc.Address.String(), signAcc.URL)
-	fmt.Println()
+
+	errUnlock := eg.keystore.Unlock(signAcc, conf.BtcMasterKey)
+	if errUnlock != nil {
+		fmt.Printf("account unlock error: %s", err)
+		return err
+	}
+
+	// Construct the transaction
+	tx := types.NewTransaction(
+		0x0,
+		toAccDef.Address,
+		new(big.Int),
+		uint64(21000),
+		new(big.Int),
+		[]byte("forward"))
+
+	signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
+	if errSign != nil {
+		fmt.Printf("tx sign error: %s", err)
+		return err
+	}
+
+	client, errDial := ethclient.Dial("http://localhost:8545")
+	if errDial != nil {
+		fmt.Printf("Dial error: %s", err)
+		return err
+	}
+
+	txErr := client.SendTransaction(context.Background(), signedTx)
+	if txErr != nil {
+		fmt.Println("send tx error:")
+		panic(txErr)
+	}
 
 	return nil
 }
