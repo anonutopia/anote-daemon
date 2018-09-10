@@ -118,7 +118,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 		toAccDef.Address,
 		big.NewInt(int64(amountInt)),
 		uint64(21000),
-		big.NewInt(5000000000),
+		big.NewInt(50000000000),
 		[]byte("forward"))
 
 	log.Println(amount)
