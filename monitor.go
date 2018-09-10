@@ -187,6 +187,15 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			if err != nil {
 				log.Printf("Error in bg.sendBitcoin: %s", err)
 			}
+		} else if strings.HasPrefix(string(dcd), "forwardeth=") {
+			user := &User{Address: t.Sender}
+			db.First(user, user)
+			if user.ID != 0 {
+				err := eg.sendEther(user.EtherAddr, strings.Replace(string(dcd), "forwardbtc=", "", 1), float64(t.Amount)/100000000)
+				if err != nil {
+					log.Printf("Error in eg.sendEther: %s", err)
+				}
+			}
 		} else {
 			log.Printf("[WavesMonitor.processTransaction] %s %.8f", dcd, float64(t.Amount)/100000000)
 			msg := tgbotapi.NewMessage(-1001325718529, string(dcd))

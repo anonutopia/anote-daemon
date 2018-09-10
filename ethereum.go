@@ -1,10 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/anonutopia/gowaves"
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type EthereumMonitor struct {
@@ -53,4 +57,30 @@ func initEthMonitor() *EthereumMonitor {
 	em := &EthereumMonitor{}
 	em.start()
 	return em
+}
+
+type EthereumGenerator struct {
+	keystore *keystore.KeyStore
+}
+
+func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) error {
+	fromAccDef := accounts.Account{
+		Address: common.HexToAddress(from),
+	}
+
+	signAcc, err := eg.keystore.Find(fromAccDef)
+	if err != nil {
+		log.Printf("account keystore find error: %s", err)
+		return err
+	}
+	fmt.Printf("account found: signAcc.addr=%s; signAcc.url=%s\n", signAcc.Address.String(), signAcc.URL)
+	fmt.Println()
+
+	return nil
+}
+
+func initEthGen() *EthereumGenerator {
+	eg := &EthereumGenerator{}
+	eg.keystore = keystore.NewKeyStore("/home/kriptokuna/wallet/wallets", keystore.StandardScryptN, keystore.StandardScryptP)
+	return eg
 }

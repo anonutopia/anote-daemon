@@ -20,6 +20,8 @@ var bg *BitcoinGenerator
 
 var em *EthereumMonitor
 
+var eg *EthereumGenerator
+
 var bot *tgbotapi.BotAPI
 
 func main() {
@@ -36,6 +38,8 @@ func main() {
 	bg = initBtcGen()
 
 	em = initEthMonitor()
+
+	eg = initEthGen()
 
 	bot = initBot()
 
