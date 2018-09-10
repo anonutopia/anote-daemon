@@ -85,7 +85,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	errUnlock := eg.keystore.Unlock(signAcc, conf.BtcMasterKey)
 	if errUnlock != nil {
 		fmt.Printf("account unlock error: %s", err)
-		return err
+		return errUnlock
 	}
 
 	// Construct the transaction
@@ -100,19 +100,19 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
 	if errSign != nil {
 		fmt.Printf("tx sign error: %s", err)
-		return err
+		return errSign
 	}
 
 	client, errDial := ethclient.Dial("http://localhost:8545")
 	if errDial != nil {
 		fmt.Printf("Dial error: %s", err)
-		return err
+		return errDial
 	}
 
 	txErr := client.SendTransaction(context.Background(), signedTx)
 	if txErr != nil {
-		fmt.Printf("send tx error: %s", err)
-		return err
+		fmt.Printf("send tx error: %s", txErr)
+		return txErr
 	}
 
 	return nil
