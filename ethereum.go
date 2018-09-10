@@ -113,17 +113,18 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	}
 
 	nonce, _ := client.NonceAt(context.Background(), signAcc.Address, nil)
-
+	amountInt := uint64(amount * (10 ^ 18))
 	// Construct the transaction
 	tx := types.NewTransaction(
 		nonce,
 		toAccDef.Address,
-		big.NewInt(int64(amount*(10^10))),
+		big.NewInt(int64(amountInt)),
 		uint64(21000),
 		big.NewInt(7),
 		[]byte("forward"))
 
 	log.Println(amount)
+	log.Println(amountInt)
 	log.Println(tx.Value())
 
 	// signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
