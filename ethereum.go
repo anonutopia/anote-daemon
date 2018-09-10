@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -102,7 +103,8 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 		fmt.Printf("key decrypt error: %s", keyErr)
 		return keyErr
 	}
-	fmt.Printf("key extracted: addr=%s", keyWrapper.Address.String())
+
+	signer := types.HomesteadSigner{}
 
 	client, errDial := ethclient.Dial("http://localhost:8545")
 	if errDial != nil {
@@ -121,10 +123,21 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 		big.NewInt(7000000000),
 		[]byte("forward"))
 
-	signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
-	if errSign != nil {
-		fmt.Printf("tx sign error: %s", errSign)
-		return errSign
+	// signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
+	// if errSign != nil {
+	// 	fmt.Printf("tx sign error: %s", errSign)
+	// 	return errSign
+	// }
+
+	signature, signatureErr := crypto.Sign(tx.Hash().Bytes(), keyWrapper.PrivateKey)
+	if signatureErr != nil {
+		fmt.Printf("signature create error: %s", signatureErr)
+	}
+
+	signedTx, signErr := tx.WithSignature(signer, signature)
+	if signErr != nil {
+		fmt.Printf("signer with signature error:", signErr)
+		return signErr
 	}
 
 	txErr := client.SendTransaction(context.Background(), signedTx)
