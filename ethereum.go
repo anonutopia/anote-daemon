@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"math/big"
 	"strings"
 	"time"
@@ -113,7 +114,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	}
 
 	nonce, _ := client.NonceAt(context.Background(), signAcc.Address, nil)
-	amountInt := uint64(amount * (10 ^ 18))
+	amountInt := amount * math.Pow(10, 18)
 	// Construct the transaction
 	tx := types.NewTransaction(
 		nonce,
