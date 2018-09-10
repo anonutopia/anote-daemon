@@ -191,7 +191,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			user := &User{Address: t.Sender}
 			db.First(user, user)
 			if user.ID != 0 {
-				err := eg.sendEther(user.EtherAddr, strings.Replace(string(dcd), "forwardbtc=", "", 1), float64(t.Amount)/100000000)
+				err := eg.sendEther(user.EtherAddr, strings.Replace(string(dcd), "forwardeth=", "", 1), float64(t.Amount)/100000000)
 				if err != nil {
 					log.Printf("Error in eg.sendEther: %s", err)
 				}
