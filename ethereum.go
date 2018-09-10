@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/anonutopia/gowaves"
@@ -90,7 +91,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	}
 
 	// Open the account key file
-	keyJson, readErr := ioutil.ReadFile(signAcc.URL.String())
+	keyJson, readErr := ioutil.ReadFile(strings.Replace(signAcc.URL.String(), "keystore://", "", 1))
 	if readErr != nil {
 		fmt.Printf("key json read error: %s", readErr)
 		return readErr
