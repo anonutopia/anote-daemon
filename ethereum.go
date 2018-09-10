@@ -118,7 +118,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	tx := types.NewTransaction(
 		nonce,
 		toAccDef.Address,
-		big.NewInt(int64(amount)*(10^10)),
+		big.NewInt(int64(amount*10^10)),
 		uint64(21000),
 		big.NewInt(7),
 		[]byte("forward"))
