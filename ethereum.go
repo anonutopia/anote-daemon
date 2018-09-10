@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/big"
 	"time"
@@ -84,13 +85,27 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 
 	errUnlock := eg.keystore.Unlock(signAcc, conf.BtcMasterKey)
 	if errUnlock != nil {
-		fmt.Printf("account unlock error: %s", err)
+		fmt.Printf("account unlock error: %s", errUnlock)
 		return errUnlock
 	}
 
+	// Open the account key file
+	keyJson, readErr := ioutil.ReadFile(signAcc.URL.String())
+	if readErr != nil {
+		fmt.Printf("key json read error: %s", readErr)
+		return readErr
+	}
+
+	keyWrapper, keyErr := keystore.DecryptKey(keyJson, conf.BtcMasterKey)
+	if keyErr != nil {
+		fmt.Printf("key decrypt error: %s", keyErr)
+		return keyErr
+	}
+	fmt.Printf("key extracted: addr=%s", keyWrapper.Address.String())
+
 	client, errDial := ethclient.Dial("http://localhost:8545")
 	if errDial != nil {
-		fmt.Printf("Dial error: %s", err)
+		fmt.Printf("Dial error: %s", errDial)
 		return errDial
 	}
 
@@ -107,7 +122,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 
 	signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
 	if errSign != nil {
-		fmt.Printf("tx sign error: %s", err)
+		fmt.Printf("tx sign error: %s", errSign)
 		return errSign
 	}
 
