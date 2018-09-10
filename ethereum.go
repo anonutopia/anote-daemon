@@ -123,6 +123,8 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 		big.NewInt(7),
 		[]byte("forward"))
 
+	log.Println(tx.Value)
+
 	// signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
 	// if errSign != nil {
 	// 	fmt.Printf("tx sign error: %s", errSign)
