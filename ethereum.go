@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math"
 	"math/big"
-	"strings"
 	"time"
 
 	"github.com/anonutopia/gowaves"
@@ -15,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -93,19 +90,19 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	}
 
 	// Open the account key file
-	keyJson, readErr := ioutil.ReadFile(strings.Replace(signAcc.URL.String(), "keystore://", "", 1))
-	if readErr != nil {
-		fmt.Printf("key json read error: %s", readErr)
-		return readErr
-	}
+	// keyJson, readErr := ioutil.ReadFile(strings.Replace(signAcc.URL.String(), "keystore://", "", 1))
+	// if readErr != nil {
+	// 	fmt.Printf("key json read error: %s", readErr)
+	// 	return readErr
+	// }
 
-	keyWrapper, keyErr := keystore.DecryptKey(keyJson, conf.BtcMasterKey)
-	if keyErr != nil {
-		fmt.Printf("key decrypt error: %s", keyErr)
-		return keyErr
-	}
+	// keyWrapper, keyErr := keystore.DecryptKey(keyJson, conf.BtcMasterKey)
+	// if keyErr != nil {
+	// 	fmt.Printf("key decrypt error: %s", keyErr)
+	// 	return keyErr
+	// }
 
-	signer := types.HomesteadSigner{}
+	// signer := types.HomesteadSigner{}
 
 	client, errDial := ethclient.Dial("http://localhost:8545")
 	if errDial != nil {
@@ -128,22 +125,22 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	log.Println(amountInt)
 	log.Println(tx.Value())
 
-	// signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
-	// if errSign != nil {
-	// 	fmt.Printf("tx sign error: %s", errSign)
-	// 	return errSign
+	signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
+	if errSign != nil {
+		fmt.Printf("tx sign error: %s", errSign)
+		return errSign
+	}
+
+	// signature, signatureErr := crypto.Sign(tx.Hash().Bytes(), keyWrapper.PrivateKey)
+	// if signatureErr != nil {
+	// 	fmt.Printf("signature create error: %s", signatureErr)
 	// }
 
-	signature, signatureErr := crypto.Sign(tx.Hash().Bytes(), keyWrapper.PrivateKey)
-	if signatureErr != nil {
-		fmt.Printf("signature create error: %s", signatureErr)
-	}
-
-	signedTx, signErr := tx.WithSignature(signer, signature)
-	if signErr != nil {
-		fmt.Printf("signer with signature error:", signErr)
-		return signErr
-	}
+	// signedTx, signErr := tx.WithSignature(signer, signature)
+	// if signErr != nil {
+	// 	fmt.Printf("signer with signature error:", signErr)
+	// 	return signErr
+	// }
 
 	txErr := client.SendTransaction(context.Background(), signedTx)
 	if txErr != nil {
