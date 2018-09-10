@@ -92,9 +92,9 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	tx := types.NewTransaction(
 		0x0,
 		toAccDef.Address,
-		new(big.Int),
+		big.NewInt(int64(amount)*(10^10)),
 		uint64(21000),
-		new(big.Int),
+		big.NewInt(5),
 		[]byte("forward"))
 
 	signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
@@ -111,7 +111,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 
 	txErr := client.SendTransaction(context.Background(), signedTx)
 	if txErr != nil {
-		fmt.Println("send tx error:")
+		fmt.Printf("send tx error: %s", err)
 		return err
 	}
 
