@@ -88,6 +88,16 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 		return errUnlock
 	}
 
+	client, errDial := ethclient.Dial("http://localhost:8545")
+	if errDial != nil {
+		fmt.Printf("Dial error: %s", err)
+		return errDial
+	}
+
+	nonce, _ := client.NonceAt(context.Background(), signAcc.Address, nil)
+
+	log.Println(nonce)
+
 	// Construct the transaction
 	tx := types.NewTransaction(
 		0x1,
@@ -101,12 +111,6 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	if errSign != nil {
 		fmt.Printf("tx sign error: %s", err)
 		return errSign
-	}
-
-	client, errDial := ethclient.Dial("http://localhost:8545")
-	if errDial != nil {
-		fmt.Printf("Dial error: %s", err)
-		return errDial
 	}
 
 	txErr := client.SendTransaction(context.Background(), signedTx)
