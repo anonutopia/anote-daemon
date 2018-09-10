@@ -112,7 +112,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	txErr := client.SendTransaction(context.Background(), signedTx)
 	if txErr != nil {
 		fmt.Println("send tx error:")
-		panic(txErr)
+		return err
 	}
 
 	return nil
