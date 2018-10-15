@@ -19,7 +19,7 @@ func (wm *WavesMonitor) start() {
 	wm.StartedTime = time.Now().Unix() * 1000
 	for {
 		// todo - make sure that everything is ok with 10 here
-		pages, err := wnc.TransactionsAddressLimit("3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2", 100)
+		pages, err := wnc.TransactionsAddressLimit(conf.NodeAddress, 100)
 		if err != nil {
 			log.Println(err)
 		}
@@ -42,7 +42,7 @@ func (wm *WavesMonitor) checkTransaction(t *gowaves.TransactionsAddressLimitResp
 }
 
 func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.TransactionsAddressLimitResponse) {
-	if t.Type == 4 && t.Timestamp >= wm.StartedTime && len(t.Attachment) == 0 && t.Sender != "3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2" && t.Recipient == "3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2" {
+	if t.Type == 4 && t.Timestamp >= wm.StartedTime && len(t.Attachment) == 0 && t.Sender != conf.NodeAddress && t.Recipient == conf.NodeAddress {
 		if len(t.AssetID) == 0 || t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" || t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
 			p, err := pc.DoRequest()
 			if err == nil {
@@ -252,7 +252,7 @@ func (wm *WavesMonitor) totalSupply() (uint64, error) {
 	}
 	itemsMap := ad.(map[string]interface{})
 	for k, a := range itemsMap {
-		if k != "3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2" {
+		if k != conf.NodeAddress {
 			supply += uint64(a.(float64))
 		}
 	}
@@ -268,7 +268,7 @@ func (wm *WavesMonitor) getBalance(address string) (uint64, error) {
 }
 
 func (wm *WavesMonitor) calculateStake(address string) (float64, error) {
-	if address == "3PDb1ULFjazuzPeWkF2vqd1nomKh4ctq9y2" {
+	if address == conf.NodeAddress {
 		return 0, nil
 	}
 	b, err := wm.getBalance(address)
