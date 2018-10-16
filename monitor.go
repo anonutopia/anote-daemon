@@ -47,16 +47,16 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			p, err := pc.DoRequest()
 			if err == nil {
 				var cryptoPrice float64
-				var invType string
+				// var invType string
 				if len(t.AssetID) == 0 {
 					cryptoPrice = p.WAVES
-					invType = "WAV"
+					// invType = "WAV"
 				} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
 					cryptoPrice = p.BTC
-					invType = "BTC"
+					// invType = "BTC"
 				} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
 					cryptoPrice = p.ETH
-					invType = "ETH"
+					// invType = "ETH"
 				}
 
 				amount := int(float64(t.Amount) / cryptoPrice / 0.01)
@@ -76,29 +76,29 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					log.Printf("Sent ANO: %s => %d", t.Sender, amount)
 				}
 
-				splitToHolders := t.Amount / 2
-				user := &User{Address: t.Sender}
-				db.First(user, user)
-				if len(user.Referral) > 0 {
-					referral := &User{Address: user.Referral}
-					db.First(referral, referral)
-					if referral.ID != 0 {
-						newProfit := uint64(t.Amount / 5)
-						if len(t.AssetID) == 0 {
-							referral.ReferralProfitWav += newProfit
-							referral.ReferralProfitWavTotal += newProfit
-						} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
-							referral.ReferralProfitBtc += newProfit
-							referral.ReferralProfitBtcTotal += newProfit
-						} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
-							referral.ReferralProfitEth += newProfit
-							referral.ReferralProfitEthTotal += newProfit
-						}
-						db.Save(referral)
-						splitToHolders -= (t.Amount / 5)
-					}
-				}
-				wm.splitToHolders(splitToHolders, invType)
+				// splitToHolders := t.Amount / 2
+				// user := &User{Address: t.Sender}
+				// db.First(user, user)
+				// if len(user.Referral) > 0 {
+				// 	referral := &User{Address: user.Referral}
+				// 	db.First(referral, referral)
+				// 	if referral.ID != 0 {
+				// 		newProfit := uint64(t.Amount / 5)
+				// 		if len(t.AssetID) == 0 {
+				// 			referral.ReferralProfitWav += newProfit
+				// 			referral.ReferralProfitWavTotal += newProfit
+				// 		} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
+				// 			referral.ReferralProfitBtc += newProfit
+				// 			referral.ReferralProfitBtcTotal += newProfit
+				// 		} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
+				// 			referral.ReferralProfitEth += newProfit
+				// 			referral.ReferralProfitEthTotal += newProfit
+				// 		}
+				// 		db.Save(referral)
+				// 		splitToHolders -= (t.Amount / 5)
+				// 	}
+				// }
+				// wm.splitToHolders(splitToHolders, invType)
 			} else {
 				log.Printf("[WavesMonitor.processTransaction] error pc.DoRequest: %s", err)
 			}
