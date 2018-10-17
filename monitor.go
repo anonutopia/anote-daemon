@@ -77,27 +77,27 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				}
 
 				// splitToHolders := t.Amount / 2
-				// user := &User{Address: t.Sender}
-				// db.First(user, user)
-				// if len(user.Referral) > 0 {
-				// 	referral := &User{Address: user.Referral}
-				// 	db.First(referral, referral)
-				// 	if referral.ID != 0 {
-				// 		newProfit := uint64(t.Amount / 5)
-				// 		if len(t.AssetID) == 0 {
-				// 			referral.ReferralProfitWav += newProfit
-				// 			referral.ReferralProfitWavTotal += newProfit
-				// 		} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
-				// 			referral.ReferralProfitBtc += newProfit
-				// 			referral.ReferralProfitBtcTotal += newProfit
-				// 		} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
-				// 			referral.ReferralProfitEth += newProfit
-				// 			referral.ReferralProfitEthTotal += newProfit
-				// 		}
-				// 		db.Save(referral)
-				// 		splitToHolders -= (t.Amount / 5)
-				// 	}
-				// }
+				user := &User{Address: t.Sender}
+				db.First(user, user)
+				if len(user.Referral) > 0 {
+					referral := &User{Address: user.Referral}
+					db.First(referral, referral)
+					if referral.ID != 0 {
+						newProfit := uint64(t.Amount / 5)
+						if len(t.AssetID) == 0 {
+							referral.ReferralProfitWav += newProfit
+							referral.ReferralProfitWavTotal += newProfit
+						} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
+							referral.ReferralProfitBtc += newProfit
+							referral.ReferralProfitBtcTotal += newProfit
+						} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
+							referral.ReferralProfitEth += newProfit
+							referral.ReferralProfitEthTotal += newProfit
+						}
+						db.Save(referral)
+						// splitToHolders -= (t.Amount / 5)
+					}
+				}
 				// wm.splitToHolders(splitToHolders, invType)
 			} else {
 				log.Printf("[WavesMonitor.processTransaction] error pc.DoRequest: %s", err)
