@@ -24,6 +24,8 @@ var eg *EthereumGenerator
 
 var bot *tgbotapi.BotAPI
 
+var anote *Anote
+
 func main() {
 	conf = initConfig()
 
@@ -42,6 +44,8 @@ func main() {
 	eg = initEthGen()
 
 	bot = initBot()
+
+	anote = initAnote()
 
 	initMonitor()
 }

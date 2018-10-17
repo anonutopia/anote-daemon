@@ -44,64 +44,48 @@ func (wm *WavesMonitor) checkTransaction(t *gowaves.TransactionsAddressLimitResp
 func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.TransactionsAddressLimitResponse) {
 	if t.Type == 4 && t.Timestamp >= wm.StartedTime && len(t.Attachment) == 0 && t.Sender != conf.NodeAddress && t.Recipient == conf.NodeAddress {
 		if len(t.AssetID) == 0 || t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" || t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
-			p, err := pc.DoRequest()
-			if err == nil {
-				var cryptoPrice float64
-				// var invType string
-				if len(t.AssetID) == 0 {
-					cryptoPrice = p.WAVES
-					// invType = "WAV"
-				} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
-					cryptoPrice = p.BTC
-					// invType = "BTC"
-				} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
-					cryptoPrice = p.ETH
-					// invType = "ETH"
-				}
 
-				amount := int(float64(t.Amount) / cryptoPrice / 0.01)
+			amount := anote.issueAmount(t.Amount, t.AssetID)
 
-				atr := &gowaves.AssetsTransferRequest{
-					Amount:    amount,
-					AssetID:   "4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf",
-					Fee:       100000,
-					Recipient: t.Sender,
-					Sender:    conf.NodeAddress,
-				}
-
-				_, err := wnc.AssetsTransfer(atr)
-				if err != nil {
-					log.Printf("[WavesMonitor.processTransation] error assets transfer: %s", err)
-				} else {
-					log.Printf("Sent ANO: %s => %d", t.Sender, amount)
-				}
-
-				// splitToHolders := t.Amount / 2
-				user := &User{Address: t.Sender}
-				db.First(user, user)
-				if len(user.Referral) > 0 {
-					referral := &User{Address: user.Referral}
-					db.First(referral, referral)
-					if referral.ID != 0 {
-						newProfit := uint64(t.Amount / 5)
-						if len(t.AssetID) == 0 {
-							referral.ReferralProfitWav += newProfit
-							referral.ReferralProfitWavTotal += newProfit
-						} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
-							referral.ReferralProfitBtc += newProfit
-							referral.ReferralProfitBtcTotal += newProfit
-						} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
-							referral.ReferralProfitEth += newProfit
-							referral.ReferralProfitEthTotal += newProfit
-						}
-						db.Save(referral)
-						// splitToHolders -= (t.Amount / 5)
-					}
-				}
-				// wm.splitToHolders(splitToHolders, invType)
-			} else {
-				log.Printf("[WavesMonitor.processTransaction] error pc.DoRequest: %s", err)
+			atr := &gowaves.AssetsTransferRequest{
+				Amount:    amount,
+				AssetID:   "4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf",
+				Fee:       100000,
+				Recipient: t.Sender,
+				Sender:    conf.NodeAddress,
 			}
+
+			_, err := wnc.AssetsTransfer(atr)
+			if err != nil {
+				log.Printf("[WavesMonitor.processTransation] error assets transfer: %s", err)
+			} else {
+				log.Printf("Sent ANO: %s => %d", t.Sender, amount)
+			}
+
+			splitToHolders := t.Amount / 2
+			user := &User{Address: t.Sender}
+			db.First(user, user)
+			if len(user.Referral) > 0 {
+				referral := &User{Address: user.Referral}
+				db.First(referral, referral)
+				if referral.ID != 0 {
+					newProfit := uint64(t.Amount / 5)
+					if len(t.AssetID) == 0 {
+						referral.ReferralProfitWav += newProfit
+						referral.ReferralProfitWavTotal += newProfit
+					} else if t.AssetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
+						referral.ReferralProfitBtc += newProfit
+						referral.ReferralProfitBtcTotal += newProfit
+					} else if t.AssetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
+						referral.ReferralProfitEth += newProfit
+						referral.ReferralProfitEthTotal += newProfit
+					}
+					db.Save(referral)
+					splitToHolders -= (t.Amount / 10)
+				}
+			}
+			// wm.splitToHolders(splitToHolders, invType)
+			log.Println(splitToHolders)
 		}
 	} else if len(t.Attachment) > 0 {
 		dcd, err := base58.Decode(t.Attachment)
