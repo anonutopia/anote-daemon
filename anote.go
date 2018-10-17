@@ -45,14 +45,14 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 
 			if a.TierPrice == 0 {
 				a.TierPrice = 1000 * satInBtc
-				a.Price += a.PriceFactor
+				a.Price = a.Price + a.PriceFactor
 				a.saveState()
 			}
 
 			if a.TierPriceFactor == 0 {
 				a.TierPriceFactor = 1000000 * satInBtc
 				if a.PriceFactor > priceFactorLimit {
-					a.PriceFactor -= priceFactorLimit
+					a.PriceFactor = a.PriceFactor - priceFactorLimit
 					a.saveState()
 				}
 			}
