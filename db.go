@@ -23,14 +23,5 @@ func initDb() *gorm.DB {
 
 	db.AutoMigrate(&User{}, &Transaction{}, &KeyValue{}, &Badge{})
 
-	var users []*User
-	db.Find(&users)
-
-	for _, user := range users {
-		user.Email = user.Address
-		user.Nickname = user.Address
-		db.Save(user)
-	}
-
 	return db
 }
