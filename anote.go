@@ -39,11 +39,11 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 				tierAmount = a.TierPrice
 			}
 
-			amount += int(tierAmount)
-			investment -= int(tierAmount * a.Price / satInBtc)
+			amount = amount + int(tierAmount)
+			investment = investment - int(tierAmount*a.Price/satInBtc)
 
-			a.TierPrice -= tierAmount
-			a.TierPriceFactor -= tierAmount
+			a.TierPrice = a.TierPrice - tierAmount
+			a.TierPriceFactor = a.TierPriceFactor - tierAmount
 
 			if a.TierPrice == 0 {
 				a.TierPrice = 1000 * satInBtc
