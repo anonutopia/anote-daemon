@@ -33,6 +33,7 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 		for investment > 0 {
 			tierAmount := uint64(float64(investment) / cryptoPrice / float64(a.Price) * float64(satInBtc))
 
+			log.Printf("inv: %s", investment)
 			log.Printf("tierAmount: %s", tierAmount)
 
 			if tierAmount > a.TierPrice {
@@ -41,6 +42,8 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 
 			amount = amount + int(tierAmount)
 			investment = investment - int(tierAmount*a.Price/satInBtc)
+
+			log.Printf("inv: %s", investment)
 
 			a.TierPrice = a.TierPrice - tierAmount
 			a.TierPriceFactor = a.TierPriceFactor - tierAmount
