@@ -200,18 +200,20 @@ func (wm *WavesMonitor) splitToFunders(amount int, assetID string) {
 		if err == nil {
 			log.Printf("Stake for address %s => %2f", user.Address, stake)
 
-			// amountUser := uint64(float64(amount) * stake)
-			// if invType == "WAV" {
-			// 	user.ProfitWav += amountUser
-			// 	user.ProfitWavTotal += amountUser
-			// } else if invType == "BTC" {
-			// 	user.ProfitBtc += amountUser
-			// 	user.ProfitBtcTotal += amountUser
-			// } else if invType == "ETH" {
-			// 	user.ProfitEth += amountUser
-			// 	user.ProfitEthTotal += amountUser
-			// }
-			// db.Save(user)
+			amountUser := uint64(float64(amount) * stake)
+
+			if len(assetID) == 0 {
+				user.ProfitWav += amountUser
+				user.ProfitWavTotal += amountUser
+			} else if assetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
+				user.ProfitBtc += amountUser
+				user.ProfitBtcTotal += amountUser
+			} else if assetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
+				user.ProfitEth += amountUser
+				user.ProfitEthTotal += amountUser
+			}
+
+			db.Save(user)
 		} else {
 			log.Printf("error in calculateStake: %s", err)
 		}
