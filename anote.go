@@ -86,22 +86,22 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 
 func (a *Anote) saveState() {
 	ksip := &KeyValue{Key: "anotePrice"}
-	db.FirstOrCreate(ksip)
+	db.FirstOrCreate(ksip, ksip)
 	ksip.Value = a.Price
 	db.Save(ksip)
 
 	ksipf := &KeyValue{Key: "anotePriceFactor"}
-	db.FirstOrCreate(ksipf)
+	db.FirstOrCreate(ksipf, ksipf)
 	ksipf.Value = a.PriceFactor
 	db.Save(ksipf)
 
 	ksitp := &KeyValue{Key: "anoteTierPrice"}
-	db.FirstOrCreate(ksitp)
+	db.FirstOrCreate(ksitp, ksipt)
 	ksitp.Value = a.TierPrice
 	db.Save(ksitp)
 
 	ksitpf := &KeyValue{Key: "anoteTierPriceFactor"}
-	db.FirstOrCreate(ksitpf)
+	db.FirstOrCreate(ksitpf, ksitpf)
 	ksitpf.Value = a.TierPriceFactor
 	db.Save(ksitpf)
 }
