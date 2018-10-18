@@ -230,13 +230,15 @@ func (a *Anote) loadState() {
 
 func initAnote() *Anote {
 	anote := &Anote{
-		Price:           uint64(0.01 * float64(satInBtc)),
-		PriceFactor:     uint64(0.0021 * float64(satInBtc)),
-		TierPrice:       1000 * satInBtc,
-		TierPriceFactor: 1000000 * satInBtc,
-		BudgetWav:       0,
-		BudgetBtc:       0,
-		BudgetEth:       0}
+		Price:            uint64(0.01 * float64(satInBtc)),
+		PriceFactor:      uint64(0.0021 * float64(satInBtc)),
+		TierPrice:        1000 * satInBtc,
+		TierPriceFactor:  1000000 * satInBtc,
+		BudgetWav:        0,
+		BudgetBtc:        0,
+		BudgetEth:        0,
+		GatewayProfitBtc: 0,
+		GatewayProfitEth: 0}
 
 	anote.loadState()
 
