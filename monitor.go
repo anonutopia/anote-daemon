@@ -62,7 +62,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				log.Printf("Sent ANO: %s => %d", t.Sender, amount)
 			}
 
-			splitToFounders := t.Amount / 2
+			splitToFunders := t.Amount / 2
 			user := &User{Address: t.Sender}
 			db.First(user, user)
 			if len(user.Referral) > 0 {
@@ -81,11 +81,11 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 						referral.ReferralProfitEthTotal += newProfit
 					}
 					db.Save(referral)
-					splitToFounders -= (t.Amount / 10)
+					splitToFunders -= (t.Amount / 10)
 				}
 			}
 
-			wm.splitToFounders(splitToFounders, t.AssetID)
+			wm.splitToFunders(splitToFunders, t.AssetID)
 		}
 	} else if len(t.Attachment) > 0 {
 		dcd, err := base58.Decode(t.Attachment)
@@ -191,55 +191,45 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 	db.Save(tr)
 }
 
-func (wm *WavesMonitor) splitToFounders(amount int, assetID string) {
-	founder := &Badge{Name: "founder"}
-	db.Preload("Users").First(founder)
+func (wm *WavesMonitor) splitToFunders(amount int, assetID string) {
+	funder := &Badge{Name: "funder"}
+	db.Preload("Users").First(funder)
 
-	log.Println(founder.Users[0].Address)
+	for _, user := range funder.Users {
+		stake, err := wm.calculateStake(user.Address)
+		if err == nil {
+			log.Printf("Stake for address %s => %2f", user.Address, stake)
 
-	// ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
-	// if err != nil {
-	// 	log.Println(err)
-	// } else {
-	// 	itemsMap := ad.(map[string]interface{})
-	// 	for k, _ := range itemsMap {
-	// 		stake, err := wm.calculateStake(k)
-	// 		log.Printf("Stake for address %s => %2f", k, stake)
-	// 		if err == nil {
-	// 			user := &User{Address: k}
-	// 			db.FirstOrCreate(user, user)
-	// 			if user.ID != 0 {
-	// 				amountUser := uint64(float64(amount) * stake)
-	// 				if invType == "WAV" {
-	// 					user.ProfitWav += amountUser
-	// 					user.ProfitWavTotal += amountUser
-	// 				} else if invType == "BTC" {
-	// 					user.ProfitBtc += amountUser
-	// 					user.ProfitBtcTotal += amountUser
-	// 				} else if invType == "ETH" {
-	// 					user.ProfitEth += amountUser
-	// 					user.ProfitEthTotal += amountUser
-	// 				}
-	// 				db.Save(user)
-	// 			}
-	// 		}
-	// 	}
-	// }
+			// amountUser := uint64(float64(amount) * stake)
+			// if invType == "WAV" {
+			// 	user.ProfitWav += amountUser
+			// 	user.ProfitWavTotal += amountUser
+			// } else if invType == "BTC" {
+			// 	user.ProfitBtc += amountUser
+			// 	user.ProfitBtcTotal += amountUser
+			// } else if invType == "ETH" {
+			// 	user.ProfitEth += amountUser
+			// 	user.ProfitEthTotal += amountUser
+			// }
+			// db.Save(user)
+		} else {
+			log.Printf("error in calculateStake: %s", err)
+		}
+	}
 }
 
 func (wm *WavesMonitor) totalSupply() (uint64, error) {
 	supply := uint64(0)
-	ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
-	if err != nil {
-		return 0, err
+
+	funder := &Badge{Name: "funder"}
+	db.Preload("Users").First(funder)
+
+	for _, user := range funder.Users {
+		balance, _ := wm.getBalance(user.Address)
+		supply += balance
 	}
-	itemsMap := ad.(map[string]interface{})
-	for k, a := range itemsMap {
-		if k != conf.NodeAddress {
-			supply += uint64(a.(float64))
-		}
-	}
-	return supply, err
+
+	return supply, nil
 }
 
 func (wm *WavesMonitor) getBalance(address string) (uint64, error) {
@@ -251,18 +241,16 @@ func (wm *WavesMonitor) getBalance(address string) (uint64, error) {
 }
 
 func (wm *WavesMonitor) calculateStake(address string) (float64, error) {
-	if address == conf.NodeAddress {
-		return 0, nil
-	}
 	b, err := wm.getBalance(address)
 	if err != nil {
 		return 0, err
 	}
+
 	ts, err := wm.totalSupply()
 	if err != nil {
 		return 0, err
 	}
-	// log.Printf("Total supply: %d", ts)
+
 	return float64(b) / float64(ts), nil
 }
 
