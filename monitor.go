@@ -192,13 +192,10 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 }
 
 func (wm *WavesMonitor) splitToFounders(amount int, assetID string) {
-	var founders []*User
 	founder := &Badge{Name: "founder"}
-	db.First(founder)
+	db.Preload("Users").First(founder)
 
-	db.Model(founder).Related(founders, "Badge")
-
-	log.Println(len(founders))
+	log.Println(len(founder.Users))
 
 	// ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
 	// if err != nil {
