@@ -40,7 +40,7 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 				tierAmount = a.TierPrice
 			}
 
-			tierInvestment := int((tierAmount / satInBtc) * a.Price)
+			tierInvestment := int(float64(tierAmount) * cryptoPrice / float64(a.Price) * float64(satInBtc))
 
 			amount = amount + int(tierAmount)
 			investment = investment - tierInvestment
