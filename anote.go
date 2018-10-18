@@ -44,7 +44,7 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 
 			log.Printf("tierAmount: %d", tierAmount)
 
-			tierInvestment := int(float64(tierAmount) * cryptoPrice / float64(a.Price) * float64(satInBtc))
+			tierInvestment := int(float64(tierAmount) * float64(a.Price) * cryptoPrice / float64(satInBtc))
 
 			log.Printf("tierInvestment: %d", tierInvestment)
 
