@@ -40,10 +40,13 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 				tierAmount = a.TierPrice
 			}
 
+			tierInvestment := int((tierAmount / satInBtc) * a.Price)
+
 			amount = amount + int(tierAmount)
-			investment = investment - int(tierAmount*a.Price/satInBtc)
+			investment = investment - tierInvestment
 
 			log.Printf("inv: %s", investment)
+			log.Printf("tier inv: %s", tierInvestment)
 
 			a.TierPrice = a.TierPrice - tierAmount
 			a.TierPriceFactor = a.TierPriceFactor - tierAmount
