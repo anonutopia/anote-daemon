@@ -132,7 +132,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 
 				if btcAmount > 0 {
 					atr := &gowaves.AssetsTransferRequest{
-						Amount:    int(wavAmount),
+						Amount:    int(btcAmount),
 						AssetID:   "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs",
 						Fee:       100000,
 						Recipient: t.Sender,
@@ -150,7 +150,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 
 				if ethAmount > 0 {
 					atr := &gowaves.AssetsTransferRequest{
-						Amount:    int(wavAmount),
+						Amount:    int(ethAmount),
 						AssetID:   "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53",
 						Fee:       100000,
 						Recipient: t.Sender,
