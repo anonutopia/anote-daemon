@@ -96,7 +96,7 @@ func (a *Anote) saveState() {
 	db.Save(ksipf)
 
 	ksitp := &KeyValue{Key: "anoteTierPrice"}
-	db.FirstOrCreate(ksitp, ksipt)
+	db.FirstOrCreate(ksitp, ksitp)
 	ksitp.Value = a.TierPrice
 	db.Save(ksitp)
 
