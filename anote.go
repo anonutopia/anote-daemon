@@ -29,7 +29,7 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 			return amount
 		}
 
-		for investment > 0 {
+		for investment > 10 {
 			log.Printf("anote: %d %d %d %d", a.Price, a.PriceFactor, a.TierPrice, a.TierPriceFactor)
 			log.Printf("cryptoPrice: %f", cryptoPrice)
 			log.Printf("investment: %d", investment)
