@@ -180,6 +180,9 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					} else {
 						user.BitcoinBalanceProcessed -= t.Amount
 						db.Save(user)
+
+						anote.GatewayProfitBtc += 50000
+						anote.saveState()
 					}
 				}
 			}
@@ -195,6 +198,9 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					} else {
 						user.EtherBalanceProcessed -= t.Amount
 						db.Save(user)
+
+						anote.GatewayProfitEth += 100000
+						anote.saveState()
 					}
 				}
 			}

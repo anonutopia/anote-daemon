@@ -7,13 +7,15 @@ const satInBtc = uint64(100000000)
 const priceFactorLimit = uint64(0.0001 * float64(satInBtc))
 
 type Anote struct {
-	Price           uint64
-	PriceFactor     uint64
-	TierPrice       uint64
-	TierPriceFactor uint64
-	BudgetWav       uint64
-	BudgetBtc       uint64
-	BudgetEth       uint64
+	Price            uint64
+	PriceFactor      uint64
+	TierPrice        uint64
+	TierPriceFactor  uint64
+	BudgetWav        uint64
+	BudgetBtc        uint64
+	BudgetEth        uint64
+	GatewayProfitBtc uint64
+	GatewayProfitEth uint64
 }
 
 func (a *Anote) issueAmount(investment int, assetID string) int {
@@ -122,6 +124,16 @@ func (a *Anote) saveState() {
 	db.FirstOrCreate(ksibe, ksibe)
 	ksibe.Value = a.BudgetEth
 	db.Save(ksibe)
+
+	ksigpb := &KeyValue{Key: "anoteGatewayProfitBtc"}
+	db.FirstOrCreate(ksigpb, ksigpb)
+	ksigpb.Value = a.GatewayProfitBtc
+	db.Save(ksigpb)
+
+	ksigpd := &KeyValue{Key: "anoteGatewayProfitEth"}
+	db.FirstOrCreate(ksigpd, ksigpd)
+	ksigpd.Value = a.GatewayProfitEth
+	db.Save(ksigpd)
 }
 
 func (a *Anote) loadState() {
@@ -193,6 +205,26 @@ func (a *Anote) loadState() {
 	} else {
 		ksibd.Value = a.BudgetEth
 		db.Save(ksibd)
+	}
+
+	ksigpb := &KeyValue{Key: "anoteGatewayProfitBtc"}
+	db.FirstOrCreate(ksigpb, ksigpb)
+
+	if ksigpb.Value > 0 {
+		a.GatewayProfitBtc = ksigpb.Value
+	} else {
+		ksigpb.Value = a.GatewayProfitBtc
+		db.Save(ksigpb)
+	}
+
+	ksigpd := &KeyValue{Key: "anoteGatewayProfitEth"}
+	db.FirstOrCreate(ksigpd, ksigpd)
+
+	if ksigpd.Value > 0 {
+		a.GatewayProfitEth = ksigpd.Value
+	} else {
+		ksigpd.Value = a.GatewayProfitEth
+		db.Save(ksigpd)
 	}
 }
 
