@@ -169,17 +169,27 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				}
 			}
 		} else if strings.HasPrefix(string(dcd), "forwardbtc=") {
-			err := bg.sendBitcoin(strings.Replace(string(dcd), "forwardbtc=", "", 1), float64(t.Amount)/float64(satInBtc))
-			if err != nil {
-				log.Printf("Error in bg.sendBitcoin: %s", err)
+			user := &User{Address: t.Sender}
+			db.First(user, user)
+			if user.ID != 0 {
+				if t.Amount > 50000 {
+					amount := t.Amount - 50000
+					err := bg.sendBitcoin(strings.Replace(string(dcd), "forwardbtc=", "", 1), float64(amount)/float64(satInBtc))
+					if err != nil {
+						log.Printf("Error in bg.sendBitcoin: %s", err)
+					}
+				}
 			}
 		} else if strings.HasPrefix(string(dcd), "forwardeth=") {
 			user := &User{Address: t.Sender}
 			db.First(user, user)
 			if user.ID != 0 {
-				err := eg.sendEther(user.EtherAddr, strings.Replace(string(dcd), "forwardeth=", "", 1), float64(t.Amount)/float64(satInBtc))
-				if err != nil {
-					log.Printf("Error in eg.sendEther: %s", err)
+				if t.Amount > 100000 {
+					amount := t.Amount - 100000
+					err := eg.sendEther(user.EtherAddr, strings.Replace(string(dcd), "forwardeth=", "", 1), float64(amount)/float64(satInBtc))
+					if err != nil {
+						log.Printf("Error in eg.sendEther: %s", err)
+					}
 				}
 			}
 		} else {
