@@ -177,6 +177,9 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					err := bg.sendBitcoin(strings.Replace(string(dcd), "forwardbtc=", "", 1), float64(amount)/float64(satInBtc))
 					if err != nil {
 						log.Printf("Error in bg.sendBitcoin: %s", err)
+					} else {
+						user.BitcoinBalanceProcessed -= t.Amount
+						db.Save(user)
 					}
 				}
 			}
@@ -189,6 +192,9 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					err := eg.sendEther(user.EtherAddr, strings.Replace(string(dcd), "forwardeth=", "", 1), float64(amount)/float64(satInBtc))
 					if err != nil {
 						log.Printf("Error in eg.sendEther: %s", err)
+					} else {
+						user.EtherBalanceProcessed -= t.Amount
+						db.Save(user)
 					}
 				}
 			}
