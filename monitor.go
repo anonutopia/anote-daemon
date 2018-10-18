@@ -62,7 +62,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				log.Printf("Sent ANO: %s => %d", t.Sender, amount)
 			}
 
-			splitToHolders := t.Amount / 2
+			splitToFounders := t.Amount / 2
 			user := &User{Address: t.Sender}
 			db.First(user, user)
 			if len(user.Referral) > 0 {
@@ -81,11 +81,11 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 						referral.ReferralProfitEthTotal += newProfit
 					}
 					db.Save(referral)
-					splitToHolders -= (t.Amount / 10)
+					splitToFounders -= (t.Amount / 10)
 				}
 			}
-			// wm.splitToHolders(splitToHolders, invType)
-			log.Println(splitToHolders)
+
+			wm.splitToFounders(splitToFounders, t.AssetID)
 		}
 	} else if len(t.Attachment) > 0 {
 		dcd, err := base58.Decode(t.Attachment)
@@ -191,41 +191,43 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 	db.Save(tr)
 }
 
-func (wm *WavesMonitor) calculateAmount(trType int64, amount int64) int64 {
-	var amountSending int64
-	amountSending = 0
-	return amountSending
-}
+func (wm *WavesMonitor) splitToFounders(amount int, assetID string) {
+	var founders []*User
+	founder := &Badge{Name: "founder"}
+	db.First(founder)
 
-func (wm *WavesMonitor) splitToHolders(amount int, invType string) {
-	ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
-	if err != nil {
-		log.Println(err)
-	} else {
-		itemsMap := ad.(map[string]interface{})
-		for k, _ := range itemsMap {
-			stake, err := wm.calculateStake(k)
-			log.Printf("Stake for address %s => %2f", k, stake)
-			if err == nil {
-				user := &User{Address: k}
-				db.FirstOrCreate(user, user)
-				if user.ID != 0 {
-					amountUser := uint64(float64(amount) * stake)
-					if invType == "WAV" {
-						user.ProfitWav += amountUser
-						user.ProfitWavTotal += amountUser
-					} else if invType == "BTC" {
-						user.ProfitBtc += amountUser
-						user.ProfitBtcTotal += amountUser
-					} else if invType == "ETH" {
-						user.ProfitEth += amountUser
-						user.ProfitEthTotal += amountUser
-					}
-					db.Save(user)
-				}
-			}
-		}
-	}
+	db.Model(founder).Related(founders, "Badge")
+
+	log.Println(len(founders))
+
+	// ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
+	// if err != nil {
+	// 	log.Println(err)
+	// } else {
+	// 	itemsMap := ad.(map[string]interface{})
+	// 	for k, _ := range itemsMap {
+	// 		stake, err := wm.calculateStake(k)
+	// 		log.Printf("Stake for address %s => %2f", k, stake)
+	// 		if err == nil {
+	// 			user := &User{Address: k}
+	// 			db.FirstOrCreate(user, user)
+	// 			if user.ID != 0 {
+	// 				amountUser := uint64(float64(amount) * stake)
+	// 				if invType == "WAV" {
+	// 					user.ProfitWav += amountUser
+	// 					user.ProfitWavTotal += amountUser
+	// 				} else if invType == "BTC" {
+	// 					user.ProfitBtc += amountUser
+	// 					user.ProfitBtcTotal += amountUser
+	// 				} else if invType == "ETH" {
+	// 					user.ProfitEth += amountUser
+	// 					user.ProfitEthTotal += amountUser
+	// 				}
+	// 				db.Save(user)
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
 
 func (wm *WavesMonitor) totalSupply() (uint64, error) {
