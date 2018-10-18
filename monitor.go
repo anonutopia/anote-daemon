@@ -195,7 +195,7 @@ func (wm *WavesMonitor) splitToFounders(amount int, assetID string) {
 	founder := &Badge{Name: "founder"}
 	db.Preload("Users").First(founder)
 
-	log.Println(len(founder.Users))
+	log.Println(founder.Users[0].Address)
 
 	// ad, err := wnc.AssetsDistribution("4zbprK67hsa732oSGLB6HzE8Yfdj3BcTcehCeTA1G5Lf")
 	// if err != nil {
