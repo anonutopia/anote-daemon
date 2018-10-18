@@ -29,41 +29,53 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 			return amount
 		}
 
-		// amount := int(float64(t.Amount) / cryptoPrice / anote.Price)
 		for investment > 0 {
+			log.Printf("anote: %d %d %d %d", a.Price, a.PriceFactor, a.TierPrice, a.TierPriceFactor)
+			log.Printf("cryptoPrice: %f", cryptoPrice)
+			log.Printf("investment: %d", investment)
+
 			tierAmount := uint64(float64(investment) / cryptoPrice / float64(a.Price) * float64(satInBtc))
 
-			log.Printf("inv: %s", investment)
-			log.Printf("tierAmount: %s", tierAmount)
+			log.Printf("tierAmount: %d", tierAmount)
 
 			if tierAmount > a.TierPrice {
 				tierAmount = a.TierPrice
 			}
 
+			log.Printf("tierAmount: %d", tierAmount)
+
 			tierInvestment := int(float64(tierAmount) * cryptoPrice / float64(a.Price) * float64(satInBtc))
 
+			log.Printf("tierInvestment: %d", tierInvestment)
+
 			amount = amount + int(tierAmount)
+
+			log.Printf("amount: %d", amount)
+
 			investment = investment - tierInvestment
 
-			log.Printf("inv: %s", investment)
-			log.Printf("tier inv: %s", tierInvestment)
+			log.Printf("investment: %d", investment)
 
 			a.TierPrice = a.TierPrice - tierAmount
 			a.TierPriceFactor = a.TierPriceFactor - tierAmount
 
+			log.Printf("anote: %d %d %d %d", a.Price, a.PriceFactor, a.TierPrice, a.TierPriceFactor)
+
 			if a.TierPrice == 0 {
 				a.TierPrice = 1000 * satInBtc
 				a.Price = a.Price + a.PriceFactor
-				a.saveState()
 			}
 
 			if a.TierPriceFactor == 0 {
 				a.TierPriceFactor = 1000000 * satInBtc
 				if a.PriceFactor > priceFactorLimit {
 					a.PriceFactor = a.PriceFactor - priceFactorLimit
-					a.saveState()
 				}
 			}
+
+			a.saveState()
+
+			log.Printf("anote: %d %d %d %d", a.Price, a.PriceFactor, a.TierPrice, a.TierPriceFactor)
 		}
 	} else {
 		log.Printf("[Anote.issueAmount] error pc.DoRequest: %s", err)
