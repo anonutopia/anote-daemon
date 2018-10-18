@@ -11,6 +11,9 @@ type Anote struct {
 	PriceFactor     uint64
 	TierPrice       uint64
 	TierPriceFactor uint64
+	BudgetWav       uint64
+	BudgetBtc       uint64
+	BudgetEth       uint64
 }
 
 func (a *Anote) issueAmount(investment int, assetID string) int {
@@ -104,6 +107,21 @@ func (a *Anote) saveState() {
 	db.FirstOrCreate(ksitpf, ksitpf)
 	ksitpf.Value = a.TierPriceFactor
 	db.Save(ksitpf)
+
+	ksibw := &KeyValue{Key: "anoteBudgetWav"}
+	db.FirstOrCreate(ksibw, ksibw)
+	ksibw.Value = a.BudgetWav
+	db.Save(ksibw)
+
+	ksibb := &KeyValue{Key: "anoteBudgetBtc"}
+	db.FirstOrCreate(ksibb, ksibb)
+	ksibb.Value = a.BudgetBtc
+	db.Save(ksibb)
+
+	ksibe := &KeyValue{Key: "anoteBudgetEth"}
+	db.FirstOrCreate(ksibe, ksibe)
+	ksibe.Value = a.BudgetEth
+	db.Save(ksibe)
 }
 
 func (a *Anote) loadState() {
@@ -146,10 +164,47 @@ func (a *Anote) loadState() {
 		ksitpf.Value = a.TierPriceFactor
 		db.Save(ksitpf)
 	}
+
+	ksibw := &KeyValue{Key: "anoteBudgetWav"}
+	db.FirstOrCreate(ksibw, ksibw)
+
+	if ksibw.Value > 0 {
+		a.BudgetWav = ksibw.Value
+	} else {
+		ksibw.Value = a.BudgetWav
+		db.Save(ksibw)
+	}
+
+	ksibb := &KeyValue{Key: "anoteBudgetBtc"}
+	db.FirstOrCreate(ksibb, ksibb)
+
+	if ksibb.Value > 0 {
+		a.BudgetBtc = ksibb.Value
+	} else {
+		ksibb.Value = a.BudgetBtc
+		db.Save(ksibb)
+	}
+
+	ksibd := &KeyValue{Key: "anoteBudgetEth"}
+	db.FirstOrCreate(ksibd, ksibd)
+
+	if ksibd.Value > 0 {
+		a.BudgetEth = ksibd.Value
+	} else {
+		ksibd.Value = a.BudgetEth
+		db.Save(ksibd)
+	}
 }
 
 func initAnote() *Anote {
-	anote := &Anote{Price: uint64(0.01 * float64(satInBtc)), PriceFactor: uint64(0.0021 * float64(satInBtc)), TierPrice: 1000 * satInBtc, TierPriceFactor: 1000000 * satInBtc}
+	anote := &Anote{
+		Price:           uint64(0.01 * float64(satInBtc)),
+		PriceFactor:     uint64(0.0021 * float64(satInBtc)),
+		TierPrice:       1000 * satInBtc,
+		TierPriceFactor: 1000000 * satInBtc,
+		BudgetWav:       0,
+		BudgetBtc:       0,
+		BudgetEth:       0}
 
 	anote.loadState()
 

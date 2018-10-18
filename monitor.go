@@ -86,6 +86,8 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 			}
 
 			wm.splitToFunders(splitToFunders, t.AssetID)
+
+			wm.addToBudget(splitToFunders, t.AssetID)
 		}
 	} else if len(t.Attachment) > 0 {
 		dcd, err := base58.Decode(t.Attachment)
@@ -218,6 +220,18 @@ func (wm *WavesMonitor) splitToFunders(amount int, assetID string) {
 			log.Printf("error in calculateStake: %s", err)
 		}
 	}
+}
+
+func (wm *WavesMonitor) addToBudget(amount int, assetID string) {
+	if len(assetID) == 0 {
+		anote.BudgetWav += uint64(amount)
+	} else if assetID == "7xHHNP8h6FrbP5jYZunYWgGn2KFSBiWcVaZWe644crjs" {
+		anote.BudgetBtc += uint64(amount)
+	} else if assetID == "4fJ42MSLPXk9zwjfCdzXdUDAH8zQFCBdBz4sFSWZZY53" {
+		anote.BudgetEth += uint64(amount)
+	}
+
+	anote.saveState()
 }
 
 func (wm *WavesMonitor) totalSupply() (uint64, error) {
