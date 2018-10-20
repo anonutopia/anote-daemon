@@ -187,17 +187,23 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				}
 			}
 		} else if strings.HasPrefix(string(dcd), "forwardeth=") {
-			user := &User{Address: t.Sender}
-			db.First(user, user)
-			if user.ID != 0 {
-				if t.Amount > 100000 {
-					amount := t.Amount - 100000
-					err := eg.sendEther(user.EtherAddr, strings.Replace(string(dcd), "forwardeth=", "", 1), float64(amount)/float64(satInBtc))
-					if err != nil {
-						log.Printf("Error in eg.sendEther: %s", err)
-					} else {
-						anote.GatewayProfitEth += 100000
-						anote.saveState()
+			if t.Amount > 100000 {
+				user := &User{Address: t.Sender}
+				db.First(user, user)
+				if user.ID != 0 {
+					ua := &UsedAddress{}
+					db.Where("balance >= ?", t.Amount).First(ua)
+					if ua.ID != 0 {
+						amount := t.Amount - 100000
+						err := eg.sendEther(ua.Address, strings.Replace(string(dcd), "forwardeth=", "", 1), float64(amount)/float64(satInBtc))
+						if err != nil {
+							log.Printf("Error in eg.sendEther: %s", err)
+						} else {
+							ua.Balance -= t.Amount
+							db.Save(ua)
+							anote.GatewayProfitEth += 100000
+							anote.saveState()
+						}
 					}
 				}
 			}
