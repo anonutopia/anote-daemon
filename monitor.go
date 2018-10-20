@@ -169,20 +169,24 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				}
 			}
 		} else if strings.HasPrefix(string(dcd), "forwardbtc=") {
-			user := &User{Address: t.Sender}
-			db.First(user, user)
-			if user.ID != 0 {
-				if t.Amount > 50000 {
-					amount := t.Amount - 50000
-					err := bg.sendBitcoin(strings.Replace(string(dcd), "forwardbtc=", "", 1), float64(amount)/float64(satInBtc))
-					if err != nil {
-						log.Printf("Error in bg.sendBitcoin: %s", err)
-					} else {
-						user.BitcoinBalanceProcessed -= t.Amount
-						db.Save(user)
+			if t.Amount > 50000 {
+				user := &User{Address: t.Sender}
+				db.First(user, user)
+				if user.ID != 0 {
+					ua := &UsedAddress{}
+					db.Where("balance >= ? AND type = ?", t.Amount, 1).First(ua)
+					if ua.ID != 0 {
+						amount := t.Amount - 50000
+						err := bg.sendBitcoin(strings.Replace(string(dcd), "forwardbtc=", "", 1), float64(amount)/float64(satInBtc))
+						if err != nil {
+							log.Printf("Error in bg.sendBitcoin: %s", err)
+						} else {
+							ua.Balance -= uint64(t.Amount)
+							db.Save(ua)
 
-						anote.GatewayProfitBtc += 50000
-						anote.saveState()
+							anote.GatewayProfitBtc += 50000
+							anote.saveState()
+						}
 					}
 				}
 			}
@@ -192,7 +196,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				db.First(user, user)
 				if user.ID != 0 {
 					ua := &UsedAddress{}
-					db.Where("balance >= ?", t.Amount).First(ua)
+					db.Where("balance >= ? AND type = ?", t.Amount, 2).First(ua)
 					if ua.ID != 0 {
 						amount := t.Amount - 100000
 						err := eg.sendEther(ua.Address, strings.Replace(string(dcd), "forwardeth=", "", 1), float64(amount)/float64(satInBtc))
