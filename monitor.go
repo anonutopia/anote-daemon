@@ -196,9 +196,6 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 					if err != nil {
 						log.Printf("Error in eg.sendEther: %s", err)
 					} else {
-						user.EtherBalanceProcessed -= t.Amount
-						db.Save(user)
-
 						anote.GatewayProfitEth += 100000
 						anote.saveState()
 					}
