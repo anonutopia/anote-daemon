@@ -228,7 +228,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 
 func (wm *WavesMonitor) splitToFunders(amount int, assetID string) {
 	funder := &Badge{Name: "funder"}
-	db.Preload("Users").First(funder)
+	db.Preload("Users").First(funder, funder)
 
 	for _, user := range funder.Users {
 		stake, err := wm.calculateStake(user.Address)
@@ -271,7 +271,7 @@ func (wm *WavesMonitor) totalSupply() (uint64, error) {
 	supply := uint64(0)
 
 	funder := &Badge{Name: "funder"}
-	db.Preload("Users").First(funder)
+	db.Preload("Users").First(funder, funder)
 
 	for _, user := range funder.Users {
 		balance, _ := wm.getBalance(user.Address)
