@@ -187,7 +187,11 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 							anote.GatewayProfitBtc += 50000
 							anote.saveState()
 						}
+					} else {
+						log.Println("Error - no used address found")
 					}
+				} else {
+					log.Println("Error - no user found")
 				}
 			}
 		} else if strings.HasPrefix(string(dcd), "forwardeth=") {
