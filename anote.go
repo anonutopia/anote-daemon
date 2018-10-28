@@ -23,6 +23,7 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 	amount := int(0)
 	if err == nil {
 		var cryptoPrice float64
+		var investmentEur float64
 
 		if len(assetID) == 0 {
 			cryptoPrice = p.WAVES
@@ -33,6 +34,10 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 		} else {
 			return amount
 		}
+
+		priceChanged := false
+		investmentEur = float64(investment) / float64(satInBtc) * cryptoPrice
+		sendGroupsMessageInvestment(investmentEur)
 
 		for investment > 10 {
 			log.Printf("anote: %d %d %d %d", a.Price, a.PriceFactor, a.TierPrice, a.TierPriceFactor)
@@ -69,6 +74,7 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 			if a.TierPrice == 0 {
 				a.TierPrice = 1000 * satInBtc
 				a.Price = a.Price + a.PriceFactor
+				priceChanged = true
 			}
 
 			if a.TierPriceFactor == 0 {
@@ -81,6 +87,11 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 			a.saveState()
 
 			log.Printf("anote: %d %d %d %d", a.Price, a.PriceFactor, a.TierPrice, a.TierPriceFactor)
+
+			if priceChanged {
+				newPrice := float64(a.Price) / float64(satInBtc)
+				sendGroupsMessagePrice(newPrice)
+			}
 		}
 	} else {
 		log.Printf("[Anote.issueAmount] error pc.DoRequest: %s", err)
