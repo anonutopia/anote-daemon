@@ -36,7 +36,7 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 		}
 
 		priceChanged := false
-		investmentEur = float64(investment) / float64(satInBtc) * cryptoPrice
+		investmentEur = float64(investment) / float64(satInBtc) / cryptoPrice
 		sendGroupsMessageInvestment(investmentEur)
 
 		for investment > 10 {
