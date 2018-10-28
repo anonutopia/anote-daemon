@@ -24,7 +24,7 @@ func initBot() *tgbotapi.BotAPI {
 }
 
 func sendGroupsMessageInvestment(investment float64) {
-	msg := tgbotapi.NewMessage(-1001325718529, fmt.Sprintf("We just had a new Anote purchase - %.8f EUR.", investment))
+	msg := tgbotapi.NewMessage(-1001397587839, fmt.Sprintf("We just had a new Anote purchase - %.2f EUR.", investment))
 	bot.Send(msg)
 }
 
