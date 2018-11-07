@@ -87,11 +87,11 @@ func (a *Anote) issueAmount(investment int, assetID string) int {
 			a.saveState()
 
 			log.Printf("anote: %d %d %d %d", a.Price, a.PriceFactor, a.TierPrice, a.TierPriceFactor)
+		}
 
-			if priceChanged {
-				newPrice := float64(a.Price) / float64(satInBtc)
-				sendGroupsMessagePrice(newPrice)
-			}
+		if priceChanged {
+			newPrice := float64(a.Price) / float64(satInBtc)
+			sendGroupsMessagePrice(newPrice)
 		}
 	} else {
 		log.Printf("[Anote.issueAmount] error pc.DoRequest: %s", err)
