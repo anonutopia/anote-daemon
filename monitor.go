@@ -62,7 +62,7 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 				log.Printf("Sent ANO: %s => %d", t.Sender, amount)
 			}
 
-			splitToFunders := t.Amount / 2
+			splitToFounders := t.Amount / 2
 			user := &User{Address: t.Sender}
 			db.First(user, user)
 			if len(user.Referral) > 0 {
@@ -81,13 +81,13 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 						referral.ReferralProfitEthTotal += newProfit
 					}
 					db.Save(referral)
-					splitToFunders -= (t.Amount / 10)
+					splitToFounders -= (t.Amount / 10)
 				}
 			}
 
-			wm.splitToFunders(splitToFunders, t.AssetID)
+			wm.splitToFounders(splitToFounders, t.AssetID)
 
-			wm.addToBudget(splitToFunders, t.AssetID)
+			wm.addToBudget(splitToFounders, t.AssetID)
 		}
 	} else if len(t.Attachment) > 0 {
 		dcd, err := base58.Decode(t.Attachment)
@@ -226,11 +226,11 @@ func (wm *WavesMonitor) processTransaction(tr *Transaction, t *gowaves.Transacti
 	db.Save(tr)
 }
 
-func (wm *WavesMonitor) splitToFunders(amount int, assetID string) {
-	funder := &Badge{Name: "funder"}
-	db.Preload("Users").First(funder, funder)
+func (wm *WavesMonitor) splitToFounders(amount int, assetID string) {
+	founder := &Badge{Name: "founder"}
+	db.Preload("Users").First(founder, founder)
 
-	for _, user := range funder.Users {
+	for _, user := range founder.Users {
 		stake, err := wm.calculateStake(user.Address)
 		if err == nil {
 			log.Printf("Stake for address %s => %2f", user.Address, stake)
@@ -270,10 +270,10 @@ func (wm *WavesMonitor) addToBudget(amount int, assetID string) {
 func (wm *WavesMonitor) totalSupply() (uint64, error) {
 	supply := uint64(0)
 
-	funder := &Badge{Name: "funder"}
-	db.Preload("Users").First(funder, funder)
+	founder := &Badge{Name: "founder"}
+	db.Preload("Users").First(founder, founder)
 
-	for _, user := range funder.Users {
+	for _, user := range founder.Users {
 		balance, _ := wm.getBalance(user.Address)
 		supply += balance
 	}
