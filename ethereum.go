@@ -53,8 +53,10 @@ func (em *EthereumMonitor) sendEther(u *User) {
 
 	if err != nil {
 		log.Printf("[EthereumMonitor.sendEther] error assets transfer: %s", err)
+		logTelegram(fmt.Sprintf("[EthereumMonitor.sendEther] error assets transfer: %s", err))
 	} else {
 		log.Printf("Sent ETH: %s => %d", u.Address, u.EtherBalanceNew)
+		logTelegram(fmt.Sprintf("Sent ETH: %s => %d", u.Address, u.EtherBalanceNew))
 		u.EtherBalanceProcessed += u.EtherBalanceNew
 		u.EtherBalanceNew = 0
 		db.Save(u)
@@ -83,6 +85,7 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 	signAcc, err := eg.keystore.Find(fromAccDef)
 	if err != nil {
 		log.Printf("account keystore find error: %s", err)
+		logTelegram(fmt.Sprintf("account keystore find error: %s", err))
 		return err
 	}
 
@@ -122,10 +125,6 @@ func (eg *EthereumGenerator) sendEther(from string, to string, amount float64) e
 		uint64(50000),
 		big.NewInt(5000000000),
 		[]byte("forward"))
-
-	log.Println(amount)
-	log.Println(amountInt)
-	log.Println(tx.Value())
 
 	// signedTx, errSign := eg.keystore.SignTx(signAcc, tx, big.NewInt(1))
 	// if errSign != nil {

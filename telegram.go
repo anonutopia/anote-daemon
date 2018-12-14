@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"gopkg.in/telegram-bot-api.v4"
+	tgbotapi "gopkg.in/telegram-bot-api.v4"
 )
 
 func initBot() *tgbotapi.BotAPI {
@@ -40,6 +40,11 @@ func sendGroupsMessagePrice(newPrice float64) {
 
 	msgEn := tgbotapi.NewMessage(-1001361489843, fmt.Sprintf("The price of Anote has just increased to %.8f EUR.", newPrice))
 	bot.Send(msgEn)
+}
+
+func logTelegram(message string) {
+	msg := tgbotapi.NewMessage(-1001325718529, message)
+	bot.Send(msg)
 }
 
 type TelegramUpdate struct {

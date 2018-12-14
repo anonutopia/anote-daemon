@@ -45,8 +45,10 @@ func (bm *BitcoinMonitor) sendBitcoin(u *User) {
 
 	if err != nil {
 		log.Printf("[BitcoinMonitor.sendBitcoin] error assets transfer: %s", err)
+		logTelegram(fmt.Sprintf("[BitcoinMonitor.sendBitcoin] error assets transfer: %s", err))
 	} else {
 		log.Printf("Sent BTC: %s => %d", u.Address, u.BitcoinBalanceNew)
+		logTelegram(fmt.Sprintf("Sent BTC: %s => %d", u.Address, u.BitcoinBalanceNew))
 		u.BitcoinBalanceProcessed += u.BitcoinBalanceNew
 		u.BitcoinBalanceNew = 0
 		db.Save(u)
@@ -63,7 +65,6 @@ type BitcoinGenerator struct {
 }
 
 func (bg *BitcoinGenerator) sendBitcoin(address string, amount float64) error {
-	log.Println(fmt.Sprintf("%.8f", amount))
 	cmdStr := fmt.Sprintf("/usr/local/bin/electrum payto %s %.8f | /usr/local/bin/electrum broadcast -", address, amount)
 	cmd := exec.Command("bash", "-c", cmdStr)
 	cmd.Env = append(os.Environ(), "HOME=/home/kriptokuna")
@@ -73,6 +74,7 @@ func (bg *BitcoinGenerator) sendBitcoin(address string, amount float64) error {
 	err := cmd.Run()
 	if err != nil {
 		log.Println("Error in BitcoinGenerator.sendBitcoin: " + string(stderr.Bytes()))
+		logTelegram("Error in BitcoinGenerator.sendBitcoin: " + string(stderr.Bytes()))
 		return err
 	}
 	return nil
