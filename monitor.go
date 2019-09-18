@@ -36,6 +36,7 @@ func (wm *WavesMonitor) start() {
 		// }
 		p, _ := pc.DoRequest()
 		log.Println(p)
+
 		time.Sleep(time.Second)
 	}
 }
