@@ -11,10 +11,6 @@ type Config struct {
 	NodeAddress     string `json:"node_address"`
 	Debug           bool   `json:"debug"`
 	Telegram        string `json:"telegram"`
-	DbName          string `json:"db_name"`
-	DbUser          string `json:"db_user"`
-	DbPass          string `json:"db_pass"`
-	BtcMasterKey    string `json:"btc_master_key"`
 }
 
 func (sc *Config) Load(configFile string) error {
